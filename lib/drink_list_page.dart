@@ -56,7 +56,9 @@ class _DrinkListPageState extends State<DrinkListPage> {
             // While loading, show a spinner
             if (snapshot.connectionState == ConnectionState.waiting ||
                 _loading) {
-              return const CircularProgressIndicator();
+              return Center(
+                child: const CircularProgressIndicator(color: Colors.blueGrey),
+              );
             }
 
             // If there was an error, show it + Retry button
