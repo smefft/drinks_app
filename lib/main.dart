@@ -67,7 +67,6 @@ class _CocktailAppState extends State<CocktailApp> {
                   )
                   .toList(),
             ),
-            ElevatedButton(onPressed: () {}, child: Text("Random")),
           ],
         ),
       ),
