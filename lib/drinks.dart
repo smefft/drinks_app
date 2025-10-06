@@ -101,6 +101,8 @@ Future<Drink> searchId(String id) async {
 
 Future<DrinkList> search(String searchTerm) async {
   final duration = Duration(seconds: 10);
+  DrinkList searchResult = DrinkList(drinkList: []);
+
   // first see if search term is contained in drink names
   final nameUri = Uri.parse(
     'https://www.thecocktaildb.com/api/json/v1/1/search.php?s=${searchTerm.toLowerCase()}',
@@ -115,45 +117,44 @@ Future<DrinkList> search(String searchTerm) async {
       );
   if (drinkResult.statusCode == 200 &&
       jsonDecode(drinkResult.body)['drinks'] != null) {
-    // normal drink list
-    return DrinkList.fromJson(
+    // initiate drink list
+    searchResult = DrinkList.fromJson(
       jsonDecode(drinkResult.body) as Map<String, dynamic>,
     );
-  } else {
-    // if no drink names contain the search term, look for drinks with that ingredient
-    final ingredientUri = Uri.parse(
-      'https://www.thecocktaildb.com/api/json/v1/1/filter.php?i=${searchTerm.toLowerCase()}',
-    );
+  }
+  // also look for drinks with that ingredient
+  final ingredientUri = Uri.parse(
+    'https://www.thecocktaildb.com/api/json/v1/1/filter.php?i=${searchTerm.toLowerCase()}',
+  );
 
-    final ingredientResult = await http
-        .get(ingredientUri)
-        .timeout(
-          duration,
-          onTimeout: () {
-            throw Exception("Request timed out");
-          },
-        );
-    if (ingredientResult.statusCode == 200) {
-      final body = jsonDecode(ingredientResult.body);
-      final drinks = body['drinks'];
-      // no matching drinks, return empty list
-      if (drinks == null || drinks == 'no data found' || drinks == []) {
-        return DrinkList(drinkList: []);
-      }
-      // this search only returns the id, name, and picture.
-      // Need whole drink for drinklist
-      List<Drink> listOfDrinks = [];
-      for (int i = 0; i < drinks.length; i++) {
-        final drink = drinks[i];
-        final drinkId = drink['idDrink'];
-        // fetch each drink
-        final Drink drinkObj = await searchId(drinkId);
-        listOfDrinks.add(drinkObj);
-      }
-      // return populated drink list
-      return DrinkList(drinkList: listOfDrinks);
-    } else {
-      throw Exception('Error code ${ingredientResult.statusCode}');
+  final ingredientResult = await http
+      .get(ingredientUri)
+      .timeout(
+        duration,
+        onTimeout: () {
+          throw Exception("Request timed out");
+        },
+      );
+  if (ingredientResult.statusCode == 200) {
+    final body = jsonDecode(ingredientResult.body);
+    final drinks = body['drinks'];
+    // no matching drinks, return empty list
+    if (drinks == null || drinks == 'no data found' || drinks == []) {
+      return searchResult;
     }
+    // this search only returns the id, name, and picture.
+    // Need whole drink for drinklist
+    List<Drink> listOfDrinks = [];
+    for (int i = 0; i < drinks.length; i++) {
+      final drink = drinks[i];
+      final drinkId = drink['idDrink'];
+      // fetch each drink
+      final Drink drinkObj = await searchId(drinkId);
+      listOfDrinks.add(drinkObj);
+    }
+    searchResult.drinkList.addAll(listOfDrinks);
+    return searchResult;
+  } else {
+    throw Exception('Error code ${ingredientResult.statusCode}');
   }
 }
