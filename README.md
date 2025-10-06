@@ -1,16 +1,24 @@
 # drinks_app
 
-A new Flutter project.
+Uses the Cocktail DB: https://www.thecocktaildb.com/api.php
+
+Example endpoint showing all drinks with a spirit:
+https://www.thecocktaildb.com/api/json/v1/1/search.php?s=vodka
+
+Example endpoint showing all drinks with names containing the search term:
+https://www.thecocktaildb.com/api/json/v1/1/search.php?s=margarita
+
+Example endpoint for searching by ingredients:
+https://www.thecocktaildb.com/api/json/v1/1/filter.php?i=Gin
+
+Example endpoint for finding a drink by id:
+https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=11007
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+To run: 
+Type 'flutter run' in main directory.
 
-A few resources to get you started if this is your first Flutter project:
+User action: Search by drink name or ingredient
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Edge case is weird symbols in search. App handles it by returning an empty list and saying 'No search results found'.
